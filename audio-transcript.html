@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transcrição de Áudio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #111934;
+      --muted: #a8b3cf;
+      --text: #e6ecff;
+      --primary: #5b8cff;
+      --primary-600: #3d6ef0;
+      --danger: #ff6868;
+      --success: #2ecc71;
+      --border: #223055;
+      --shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, Apple Color Emoji, Segoe UI Emoji;
+      background: radial-gradient(1000px 600px at 10% -10%, rgba(91, 140, 255, 0.18), transparent),
+        radial-gradient(1000px 600px at 110% 10%, rgba(46, 204, 113, 0.12), transparent),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), #8ea8ff);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    p.subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.0));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .dropzone {
+      padding: 28px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.08s ease;
+      border: 2px dashed #2a3b6f;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dropzone:hover {
+      transform: translateY(-1px);
+    }
+
+    .dropzone.is-dragover {
+      border-color: var(--primary);
+      background: rgba(91, 140, 255, 0.06);
+    }
+
+    .drop-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .drop-help {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .formats {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .uploads {
+      margin-top: 20px;
+      padding: 16px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .file-name {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .status.loading {
+      color: #ffd166;
+      border-color: #3a2c00;
+      background: rgba(255, 209, 102, 0.08);
+    }
+
+    .status.success {
+      color: var(--success);
+      border-color: #153a2a;
+      background: rgba(46, 204, 113, 0.08);
+    }
+
+    .status.error {
+      color: var(--danger);
+      border-color: #3a1b1b;
+      background: rgba(255, 104, 104, 0.08);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button.btn {
+      color: white;
+      background: var(--primary);
+      border: 1px solid #3456a9;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.06s ease, filter 0.15s ease, background 0.2s ease;
+    }
+
+    button.btn:hover {
+      filter: brightness(1.05);
+    }
+
+    button.btn:active {
+      transform: translateY(1px);
+    }
+
+    button.btn.secondary {
+      background: #1a2447;
+      border-color: #2b3a6b;
+      color: var(--text);
+    }
+
+    button.btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .output {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0e1734;
+      color: var(--text);
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      min-height: 56px;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top-color: white;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    a.link {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a.link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="title">
+        <div class="logo">A</div>
+        <div>
+          <h1>Transcrever Áudios</h1>
+          <p class="subtitle">Arraste arquivos de áudio ou clique para selecionar. O texto transcrito aparecerá abaixo.</p>
+        </div>
+      </div>
+    </header>
+
+    <div id="dropzone" class="card dropzone" role="button" tabindex="0" aria-label="Área para soltar ou selecionar áudios">
+      <div>
+        <div class="drop-title">Arraste e solte seus áudios aqui</div>
+        <p class="drop-help">ou clique para selecionar</p>
+        <div class="formats">Formatos aceitos: MP3, WAV, M4A, OGG, FLAC</div>
+      </div>
+      <input id="fileInput" class="hidden-input" type="file" accept="audio/*" multiple>
+    </div>
+
+    <div id="uploads" class="card uploads"></div>
+
+    <p class="footer-note">Os arquivos são enviados para o endpoint configurado e o texto retornado é exibido aqui. Em caso de erro de rede/CORS, verifique as permissões do servidor.</p>
+  </div>
+
+  <script>
+    (function () {
+      const WEBHOOK_URL = 'https://n8n.anticlone.digital/webhook/audio-transcript';
+      const ACCEPTED_TYPES = [
+        'audio/mpeg', // mp3
+        'audio/mp3',
+        'audio/wav',
+        'audio/x-wav',
+        'audio/wave',
+        'audio/flac',
+        'audio/ogg',
+        'audio/mp4',
+        'audio/aac',
+        'audio/m4a'
+      ];
+
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const uploads = document.getElementById('uploads');
+
+      function formatBytes(bytes) {
+        if (!Number.isFinite(bytes)) return '';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        const e = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+        return (bytes / Math.pow(1024, e)).toFixed(e === 0 ? 0 : 1) + ' ' + units[e];
+      }
+
+      function createItem(file) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'item';
+        wrapper.innerHTML = `
+          <div class="item-header">
+            <div>
+              <div class="file-name">${file.name}</div>
+              <div class="file-meta">${file.type || 'audio/*'} · ${formatBytes(file.size)}</div>
+            </div>
+            <div class="actions">
+              <span class="status loading"><span class="spinner"></span>Enviando…</span>
+              <button class="btn secondary btn-copy" disabled>Copiar</button>
+            </div>
+          </div>
+          <pre class="output" aria-live="polite" aria-atomic="true"></pre>
+        `;
+        uploads.appendChild(wrapper);
+        return wrapper;
+      }
+
+      async function copyToClipboard(text, button) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          const original = button.textContent;
+          button.textContent = 'Copiado!';
+          button.disabled = true;
+          setTimeout(() => { button.textContent = original; button.disabled = false; }, 1200);
+        } catch (err) {
+          console.error(err);
+          alert('Não foi possível copiar para a área de transferência.');
+        }
+      }
+
+      function extractTranscriptFromJson(json) {
+        if (!json || typeof json !== 'object') return null;
+        const candidates = [
+          'text', 'transcript', 'transcription', 'resultado', 'conteudo', 'content'
+        ];
+        for (const key of candidates) {
+          if (typeof json[key] === 'string' && json[key].trim()) return json[key];
+        }
+        // tenta percorrer níveis comuns
+        if (json.data) {
+          for (const key of candidates) {
+            if (typeof json.data[key] === 'string' && json.data[key].trim()) return json.data[key];
+          }
+        }
+        return null;
+      }
+
+      async function uploadFile(file) {
+        const item = createItem(file);
+        const statusEl = item.querySelector('.status');
+        const outputEl = item.querySelector('.output');
+        const copyBtn = item.querySelector('.btn-copy');
+
+        copyBtn.addEventListener('click', () => {
+          const text = outputEl.textContent || '';
+          if (text) copyToClipboard(text, copyBtn);
+        });
+
+        // validação básica de tipo
+        const isAccepted = !file.type || ACCEPTED_TYPES.includes(file.type) || file.name.match(/\.(mp3|wav|m4a|ogg|flac)$/i);
+        if (!isAccepted) {
+          statusEl.className = 'status error';
+          statusEl.textContent = 'Tipo de arquivo não suportado';
+          outputEl.textContent = 'Use formatos: MP3, WAV, M4A, OGG, FLAC.';
+          return;
+        }
+
+        try {
+          const form = new FormData();
+          // Campo padrão 'file'. Se seu fluxo no n8n esperar outro nome, ajuste aqui.
+          form.append('file', file, file.name);
+
+          const response = await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            body: form,
+          });
+
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+          }
+
+          let transcriptText = '';
+          const contentType = response.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const data = await response.json();
+            transcriptText = extractTranscriptFromJson(data) || JSON.stringify(data, null, 2);
+          } else {
+            transcriptText = await response.text();
+          }
+
+          transcriptText = (transcriptText || '').toString().trim();
+          if (!transcriptText) {
+            transcriptText = '[Sem conteúdo retornado pelo servidor]';
+          }
+
+          outputEl.textContent = transcriptText;
+          statusEl.className = 'status success';
+          statusEl.textContent = 'Concluído';
+          copyBtn.disabled = false;
+        } catch (err) {
+          console.error(err);
+          statusEl.className = 'status error';
+          statusEl.textContent = 'Erro ao transcrever';
+          outputEl.textContent = 'Falha ao enviar ou processar o arquivo. Possível bloqueio de CORS ou problema de rede/servidor. Detalhes: ' + err.message;
+        }
+      }
+
+      function handleFiles(fileList) {
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+        files.forEach(uploadFile);
+      }
+
+      // Eventos da dropzone
+      ['dragenter', 'dragover'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('is-dragover');
+        });
+      });
+      ['dragleave', 'dragend', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (evt !== 'drop') dropzone.classList.remove('is-dragover');
+        });
+      });
+      dropzone.addEventListener('drop', (e) => {
+        dropzone.classList.remove('is-dragover');
+        const dt = e.dataTransfer;
+        if (dt && dt.files) handleFiles(dt.files);
+      });
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+      fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+    })();
+  </script>
+</body>
+
+</html>
